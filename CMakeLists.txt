@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.17)
+project(Cookies_CPP)
+set(CMAKE_CXX_STANDARD 17)
+add_library(Cookies_CPP Cookies/Tuple/Pair.h Cookies/Tuple/Unit.h Cookies/Tuple/Triplet.h Cookies/Graph/Graph.h)
+add_executable(Test Test/GraphTest.cpp Cookies/Tuple/Pair.h Cookies/Tuple/Unit.h Cookies/Tuple/Triplet.h Cookies/Graph/Graph.h)
