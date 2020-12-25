@@ -28,7 +28,20 @@ TEST_CASE("WeightedGraph-Test") {
         cout << graph.get(key, 0).first << endl;
         cout << graph.get(key, 0).second << endl;
     }
-    //graph.printAllShortestPath();
+    unordered_map<string, pair<int, string>> map2 = graph.bellmanFord("a");
+    unordered_map<string, pair<int, string>> map1 = graph.dijkstra("a");
+    int first = map1.size();
+    int second = map2.size();
+    int third = graph.getVertexList().size();
+    if (first == second && first == third) {
+        for (auto &element : map1) {
+            if (element.second != map2[element.first]) {
+                cout << "Warning!" << endl;
+            }
+        }
+    } else {
+        cout << "Warning!" << endl;
+    }
     cout << graph.kruskal() << endl;
     graph.clear();
     //graph.addDirectedEdge(5, 8, 3);
