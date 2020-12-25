@@ -31,7 +31,7 @@ template<class T> DisjointSet<T>::DisjointSet() = default;
 template<class T> DisjointSet<T>::DisjointSet(vector<T> elements) {
     size = elements.size();
     map = unordered_map<T, int>();
-    sets = (Set<T>*) malloc(elements.size() * sizeof(Set<T>));
+    sets = new Set<T>[elements.size()];
     count = elements.size();
     for (int i = 0; i < elements.size(); i++) {
         map[elements.at(i)] = i;
