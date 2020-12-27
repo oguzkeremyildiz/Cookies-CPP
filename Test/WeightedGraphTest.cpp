@@ -44,5 +44,11 @@ TEST_CASE("WeightedGraph-Test") {
     }
     cout << graph.kruskal() << endl;
     graph.clear();
-    //graph.addDirectedEdge(5, 8, 3);
+    graph.addUndirectedEdge("5", "8", 3);
+    graph.addUndirectedEdge("7", "9", 3);
+    graph.addUndirectedEdge("3", "5", 2);
+    graph.addUndirectedEdge("8", "11", 45);
+    graph.addUndirectedEdge("8", "9", 34);
+    vector<WeightedGraph<string, int>> graphs = graph.connectedComponents();
+    graph.clear();
 }
