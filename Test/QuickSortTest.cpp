@@ -25,17 +25,34 @@ public:
 
 TEST_CASE("QuickSort-test") {
     vector<int> v = vector<int>();
+    v.push_back(7);
     v.push_back(15);
     v.push_back(3);
+    v.push_back(77);
     v.push_back(8);
     v.push_back(19);
     v.push_back(1);
     v.push_back(88);
     v.push_back(22);
+    int *array = new int[9];
+    array[0] = 7;
+    array[1] = 15;
+    array[2] = 3;
+    array[3] = 77;
+    array[4] = 8;
+    array[5] = 19;
+    array[6] = 1;
+    array[7] = 88;
+    array[8] = 22;
     Comparator<int> *comparator = new IntegerComparator();
     auto quickSort = QuickSort<int>(comparator);
     v = quickSort.sort(v, 0, v.size() - 1);
+    array = quickSort.sort(array, 0, 8);
     for (int i : v) {
         cout << i << endl;
+    }
+    cout << "" << endl;
+    for (int i = 0; i < 9; ++i) {
+        cout << array[i] << endl;
     }
 }
