@@ -30,6 +30,7 @@ TEST_CASE("QuickSort-test") {
     v.push_back(3);
     v.push_back(77);
     v.push_back(8);
+    v.push_back(100);
     v.push_back(19);
     v.push_back(1);
     v.push_back(88);
@@ -46,8 +47,8 @@ TEST_CASE("QuickSort-test") {
     array[8] = 22;
     Comparator<int> *comparator = new IntegerComparator();
     auto quickSort = QuickSort<int>(comparator);
-    v = quickSort.sort(v, 0, v.size() - 1);
-    array = quickSort.sort(array, 0, 8);
+    quickSort.sort(v, 0, v.size() - 1);
+    quickSort.sort(array, 0, 8);
     for (int i : v) {
         cout << i << endl;
     }

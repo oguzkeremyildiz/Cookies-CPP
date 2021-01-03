@@ -12,6 +12,7 @@ TEST_CASE("Graph-test") {
     graph.addUnDirectedEdge(1, 0);
     graph.addUnDirectedEdge(2, 3);
     graph.addUnDirectedEdge(3, 4);
+    graph.addUnDirectedEdge(5, 6);
     vector<Graph<int>> graphs = graph.connectedComponents();
     graph.clear();
 }
