@@ -12,7 +12,6 @@ TEST_CASE("Unit-test") {
     Unit<int> unit1 = Unit(3);
     Unit<int> unit2 = Unit(4);
     cout << unit1.getA() << endl;
-    cout << unit1.toString() << endl;
     bool boolean = unit1 != unit2;
     cout << boolean << endl;
 }
