@@ -9,6 +9,15 @@
 
 using namespace std;
 
+struct pair_hash
+{
+    template <class T1, class T2>
+    std::size_t operator() (const std::pair<T1, T2> &pair) const
+    {
+        return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
+    }
+};
+
 TEST_CASE("WeightedGraph-Test") {
     LengthInterface<int> *lengthInterface = new IntegerLength();
     WeightedGraph<string, int> graph = WeightedGraph<string, int>(lengthInterface);
@@ -50,4 +59,15 @@ TEST_CASE("WeightedGraph-Test") {
     graph.addUndirectedEdge("8", "11", 45);
     vector<WeightedGraph<string, int>> graphs = graph.connectedComponents();
     graph.clear();
+    cout << "" << endl;
+    WeightedGraph<pair<string, int>, int, pair_hash> g = WeightedGraph<pair<string, int>, int, pair_hash>(lengthInterface);
+    g.addUndirectedEdge(pair<string, int>("Selin", 7), pair<string, int>("Oğuz", 10), 3);
+    vector<pair<string, int>> v = g.getKeySet();
+    cout << g.isEmpty() << endl;
+    cout << g.get(pair<string, int>("Selin", 7), 0).first.first << endl;
+    cout << g.containsKey(pair<string, int>("Selin", 7)) << endl;
+    unordered_map<pair<string, int>, pair<int, pair<string, int>>, pair_hash> m = g.dijkstra(pair<string, int>("Selin", 7));
+    vector<vector<int>> v12 = g.floydWarshall();
+    cout << g.prims() << endl;
+    g.clear();
 }
