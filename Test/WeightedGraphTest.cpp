@@ -39,6 +39,7 @@ TEST_CASE("WeightedGraph-Test") {
     }
     unordered_map<string, pair<int, string>> map2 = graph.bellmanFord("a");
     unordered_map<string, pair<int, string>> map1 = graph.dijkstra("a");
+    pair<unordered_map<int, string>, vector<vector<int>>> p = graph.floydWarshallWithKeys();
     int first = map1.size();
     int second = map2.size();
     int third = graph.getVertexList().size();
@@ -69,5 +70,7 @@ TEST_CASE("WeightedGraph-Test") {
     unordered_map<pair<string, int>, pair<int, pair<string, int>>, pair_hash> m = g.dijkstra(pair<string, int>("Selin", 7));
     vector<vector<int>> v12 = g.floydWarshall();
     cout << g.prims() << endl;
+    g.addUndirectedEdge(pair<string, int>("Zeynep", 7), pair<string, int>("Mahmut", 10), 3);
+    vector<WeightedGraph<pair<string, int>, int, pair_hash>> gs = g.connectedComponents();
     g.clear();
 }

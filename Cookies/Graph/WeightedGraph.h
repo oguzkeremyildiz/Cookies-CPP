@@ -25,6 +25,7 @@ private:
     bool containsAll(unordered_set<Symbol, sizet> elements);
     pair<bool, int> containsElement(Symbol edge, Symbol element);
     Symbol findMinimum(unordered_set<Symbol, sizet> visited, unordered_map<Symbol, pair<Length, Symbol>, sizet> map);
+    void depthFirstSearch(WeightedGraph<Symbol, Length, sizet> &connectedComponent, Symbol i, unordered_map<Symbol, bool, sizet> &visited);
 public:
     WeightedGraph();
     WeightedGraph(LengthInterface<Length> *lengthInterface);
@@ -40,12 +41,13 @@ public:
     unordered_set<Symbol, sizet> getVertexList();
     int size();
     void put(Symbol index, vector<pair<Symbol, Length>> list);
-    vector<pair<Symbol, Length>> get(Symbol index);
+    vector<pair<Symbol, Length>> get(Symbol symbol);
     pair<Symbol, Length> get(Symbol element, int index);
     unordered_map<Symbol, pair<Length, Symbol>, sizet> bellmanFord(Symbol edge);
     vector<vector<Length>> floydWarshall();
     Length prims();
     unordered_map<Symbol, pair<Length, Symbol>, sizet> dijkstra(Symbol edge);
+    vector<WeightedGraph<Symbol, Length, sizet>> connectedComponents();
 };
 
 template<class Symbol, class Length> class WeightedGraph<Symbol, Length> {
@@ -74,11 +76,11 @@ public:
     unordered_set<Symbol> getVertexList();
     int size();
     void put(Symbol index, vector<pair<Symbol, Length>> list);
-    vector<pair<Symbol, Length>> get(Symbol index);
+    vector<pair<Symbol, Length>> get(Symbol symbol);
     pair<Symbol, Length> get(Symbol element, int index);
     unordered_map<Symbol, pair<Length, Symbol>> bellmanFord(Symbol edge);
     vector<vector<Length>> floydWarshall();
-    pair<unordered_map<int, Symbol>, vector<vector<int>>> floydWarshallWithKeys();
+    pair<unordered_map<int, Symbol>, vector<vector<Length>>> floydWarshallWithKeys();
     Length prims();
     Length kruskal();
     unordered_map<Symbol, pair<Length, Symbol>> dijkstra(Symbol edge);
@@ -231,8 +233,8 @@ template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::put(Sym
     }
 }
 
-template<class Symbol, class Length, class sizet> vector<pair<Symbol, Length>> WeightedGraph<Symbol, Length, sizet>::get(Symbol index) {
-    return edgeList[index];
+template<class Symbol, class Length, class sizet> vector<pair<Symbol, Length>> WeightedGraph<Symbol, Length, sizet>::get(Symbol symbol) {
+    return edgeList[symbol];
 }
 
 template<class Symbol, class Length> vector<pair<Symbol, Length>> WeightedGraph<Symbol, Length>::get(Symbol index) {
@@ -383,7 +385,7 @@ template<class Symbol, class Length> vector<vector<Length>> WeightedGraph<Symbol
     return array;
 }
 
-template<class Symbol, class Length> pair<unordered_map<int, Symbol>, vector<vector<int>>> WeightedGraph<Symbol, Length>::floydWarshallWithKeys() {
+template<class Symbol, class Length> pair<unordered_map<int, Symbol>, vector<vector<Length>>> WeightedGraph<Symbol, Length>::floydWarshallWithKeys() {
     vector<vector<Length>> array = vector<vector<Length>>();
     for (int i = 0; i < vertexList.size(); i++) {
         vector<Length> v = vector<Length>();
@@ -423,7 +425,7 @@ template<class Symbol, class Length> pair<unordered_map<int, Symbol>, vector<vec
             }
         }
     }
-    return pair<unordered_map<int, Symbol>, vector<vector<int>>>(invert(map), array);
+    return pair<unordered_map<int, Symbol>, vector<vector<Length>>>(invert(map), array);
 }
 
 template<class Symbol, class Length> unordered_map<int, Symbol> WeightedGraph<Symbol, Length>::invert(unordered_map<Symbol, int> map) {
@@ -664,6 +666,26 @@ template<class Symbol, class Length> unordered_map<Symbol, pair<Length, Symbol>>
     return map;
 }
 
+template<class Symbol, class Length, class sizet> vector<WeightedGraph<Symbol, Length, sizet>> WeightedGraph<Symbol, Length, sizet>::connectedComponents() {
+    vector<WeightedGraph<Symbol, Length, sizet>> graphs = vector<WeightedGraph<Symbol, Length, sizet>>();
+    int i;
+    unordered_map<Symbol, bool, sizet> visited = unordered_map<Symbol, bool, sizet>();
+    for (Symbol vertex: vertexList) {
+        visited[vertex] = false;
+    }
+    for (Symbol vertex: vertexList) {
+        if (!visited[vertex]) {
+            visited[vertex] = true;
+            WeightedGraph<Symbol, Length, sizet> connectedComponent = WeightedGraph<Symbol, Length, sizet>(lengthInterface);
+            depthFirstSearch(connectedComponent, vertex, visited);
+            if (!connectedComponent.isEmpty()) {
+                graphs.push_back(connectedComponent);
+            }
+        }
+    }
+    return graphs;
+}
+
 template<class Symbol, class Length> vector<WeightedGraph<Symbol, Length>> WeightedGraph<Symbol, Length>::connectedComponents() {
     vector<WeightedGraph<Symbol, Length>> graphs = vector<WeightedGraph<Symbol, Length>>();
     int i;
@@ -682,6 +704,18 @@ template<class Symbol, class Length> vector<WeightedGraph<Symbol, Length>> Weigh
         }
     }
     return graphs;
+}
+
+template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::depthFirstSearch(WeightedGraph<Symbol, Length, sizet> &connectedComponent, Symbol i, unordered_map<Symbol, bool, sizet> &visited) {
+    if (containsKey(i)) {
+        connectedComponent.put(i, get(i));
+        for (pair<Symbol, Length> toNode : get(i)) {
+            if (!visited[toNode.first]) {
+                visited[toNode.first] = true;
+                depthFirstSearch(connectedComponent, toNode.first, visited);
+            }
+        }
+    }
 }
 
 template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::depthFirstSearch(WeightedGraph<Symbol, Length> &connectedComponent, Symbol i, unordered_map<Symbol, bool> &visited) {
