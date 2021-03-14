@@ -16,6 +16,7 @@ private:
     LengthInterface<E> *lengthInterface;
 public:
     Edge();
+    Edge(E capacity);
     Edge(E capacity, LengthInterface<E> *lengthInterface);
     Edge(E capacity, E residual, LengthInterface<E> *lengthInterface);
     E getCapacity();
@@ -26,6 +27,10 @@ public:
 };
 
 template<class E> Edge<E>::Edge() = default;
+
+template<class E> Edge<E>::Edge(E capacity) {
+    this->capacity = capacity;
+}
 
 template<class E> Edge<E>::Edge(E capacity, LengthInterface<E> *lengthInterface) {
     this->capacity = capacity;

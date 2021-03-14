@@ -35,7 +35,7 @@ TEST_CASE("WeightedGraph-Test") {
     graph.addUndirectedEdge("h", "g", 1);
     for (string key : graph.getKeySet()) {
         cout << graph.get(key, 0).first << endl;
-        cout << graph.get(key, 0).second << endl;
+        cout << graph.get(key, 0).second.getCapacity() << endl;
     }
     unordered_map<string, pair<int, string>> map2 = graph.bellmanFord("a");
     unordered_map<string, pair<int, string>> map1 = graph.dijkstra("a");
