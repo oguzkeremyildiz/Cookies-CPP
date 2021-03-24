@@ -40,6 +40,7 @@ public:
     void addUndirectedEdge(Symbol from, Symbol to, Length length);
     void addUndirectedEdge(Symbol from, Symbol to, Edge<Length>* edge);
     void addUndirectedEdge(Symbol from, Symbol to, Length lengthFrom, Length lengthTo);
+    void addUndirectedEdge(Symbol from, Symbol to, Edge<Length>* lengthFrom, Edge<Length>* lengthTo);
     vector<Symbol> getKeySet();
     unordered_set<Symbol, sizet> getVertexList();
     int size();
@@ -77,6 +78,7 @@ public:
     void addUndirectedEdge(Symbol from, Symbol to, Length length);
     void addUndirectedEdge(Symbol from, Symbol to, Edge<Length>* edge);
     void addUndirectedEdge(Symbol from, Symbol to, Length lengthFrom, Length lengthTo);
+    void addUndirectedEdge(Symbol from, Symbol to, Edge<Length>* lengthFrom, Edge<Length>* lengthTo);
     vector<Symbol> getKeySet();
     unordered_set<Symbol> getVertexList();
     int size();
@@ -198,6 +200,16 @@ template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Len
 template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::addUndirectedEdge(Symbol from, Symbol to, Length length) {
     addDirectedEdge(from, to, length);
     addDirectedEdge(to, from, length);
+}
+
+template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::addUndirectedEdge(Symbol from, Symbol to, Edge<Length> *lengthFrom, Edge<Length> *lengthTo) {
+    addDirectedEdge(from, to, lengthTo);
+    addDirectedEdge(to, from, lengthFrom);
+}
+
+template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::addUndirectedEdge(Symbol from, Symbol to, Edge<Length> *lengthFrom, Edge<Length> *lengthTo) {
+    addDirectedEdge(from, to, lengthTo);
+    addDirectedEdge(to, from, lengthFrom);
 }
 
 template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::addUndirectedEdge(Symbol from, Symbol to, Length lengthFrom, Length lengthTo) {

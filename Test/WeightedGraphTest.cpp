@@ -23,8 +23,12 @@ TEST_CASE("WeightedGraph-Test") {
     LengthInterface<int> *lengthInterface = new IntegerLength();
     WeightedGraph<string, int> test = WeightedGraph<string, int>(lengthInterface);
     test.addUndirectedEdge("a", "b", new ResidualEdge<int>(3, lengthInterface));
-    test.addUndirectedEdge("b", "c", new ResidualEdge<int>(5, lengthInterface));
-    cout << static_cast<ResidualEdge<int>*>(test.get("b", 0).second)->getResidual() << endl;
+    test.addUndirectedEdge("b", "c", new ResidualEdge<int>(5, lengthInterface), new ResidualEdge<int>(5, lengthInterface));
+    cout << "first -> ";
+    cout << static_cast<ResidualEdge<int>*>(test.get("b", 0).second)->getFlow() << endl;
+    static_cast<ResidualEdge<int>*>(test.get("b", 0).second)->setFlow(1);
+    cout << "second -> ";
+    cout << static_cast<ResidualEdge<int>*>(test.get("b", 0).second)->getFlow() << endl;
     WeightedGraph<string, int> graph = WeightedGraph<string, int>(lengthInterface);
     graph.addUndirectedEdge("a", "b", 4);
     graph.addUndirectedEdge("a", "h", 8);
