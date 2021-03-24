@@ -39,6 +39,13 @@ public:
     void setResidual(E e) {
         this->residual = e;
     }
+    ResidualEdge<E> clone() {
+        return ResidualEdge<E>(this->length, this->residual, lengthInterface);
+    }
+
+    ResidualEdge<E>* clonePointer() {
+        return new ResidualEdge<E>(this->length, this->residual, lengthInterface);
+    }
 };
 
 #endif //COOKIES_CPP_RESIDUALEDGE_H

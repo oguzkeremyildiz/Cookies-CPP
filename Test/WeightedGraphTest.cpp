@@ -22,7 +22,7 @@ struct pair_hash
 TEST_CASE("WeightedGraph-Test") {
     LengthInterface<int> *lengthInterface = new IntegerLength();
     WeightedGraph<string, int> test = WeightedGraph<string, int>(lengthInterface);
-    test.addUndirectedEdge("a", "b", new ResidualEdge<int>(3, lengthInterface));
+    test.addUndirectedEdge("a", "b", new ResidualEdge<int>(3, lengthInterface), new ResidualEdge<int>(3, lengthInterface));
     test.addUndirectedEdge("b", "c", new ResidualEdge<int>(5, lengthInterface), new ResidualEdge<int>(5, lengthInterface));
     cout << "first -> ";
     cout << static_cast<ResidualEdge<int>*>(test.get("b", 0).second)->getFlow() << endl;
@@ -67,7 +67,7 @@ TEST_CASE("WeightedGraph-Test") {
     graph.addUndirectedEdge("7", "9", 3);
     graph.addUndirectedEdge("3", "5", 2);
     graph.addUndirectedEdge("8", "11", 45);
-    vector<WeightedGraph<string, int>> graphs = graph.connectedComponents();
+    vector<WeightedGraph<string, int>*> graphs = graph.connectedComponents();
     graph.clear();
     cout << "" << endl;
     WeightedGraph<pair<string, int>, int, pair_hash> g = WeightedGraph<pair<string, int>, int, pair_hash>(lengthInterface);
@@ -80,6 +80,6 @@ TEST_CASE("WeightedGraph-Test") {
     vector<vector<int>> v12 = g.floydWarshall();
     cout << g.prims() << endl;
     g.addUndirectedEdge(pair<string, int>("Zeynep", 7), pair<string, int>("Mahmut", 10), 3);
-    vector<WeightedGraph<pair<string, int>, int, pair_hash>> gs = g.connectedComponents();
+    vector<WeightedGraph<pair<string, int>, int, pair_hash>*> gs = g.connectedComponents();
     g.clear();
 }

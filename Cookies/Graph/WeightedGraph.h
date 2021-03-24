@@ -26,8 +26,9 @@ private:
     bool containsAll(unordered_set<Symbol, sizet> elements);
     pair<bool, int> containsElement(Symbol edge, Symbol element);
     Symbol findMinimum(unordered_set<Symbol, sizet> visited, unordered_map<Symbol, pair<Length, Symbol>, sizet> map);
-    void depthFirstSearch(WeightedGraph<Symbol, Length, sizet> &connectedComponent, Symbol i, unordered_map<Symbol, bool, sizet> &visited);
+    void depthFirstSearch(WeightedGraph<Symbol, Length, sizet>* &connectedComponent, Symbol i, unordered_map<Symbol, bool, sizet> &visited);
 public:
+    virtual ~WeightedGraph();
     WeightedGraph();
     WeightedGraph(LengthInterface<Length> *lengthInterface);
     WeightedGraph(unordered_set<Symbol, sizet> vertexList, LengthInterface<Length> *lengthInterface);
@@ -51,7 +52,7 @@ public:
     vector<vector<Length>> floydWarshall();
     Length prims();
     unordered_map<Symbol, pair<Length, Symbol>, sizet> dijkstra(Symbol edge);
-    vector<WeightedGraph<Symbol, Length, sizet>> connectedComponents();
+    vector<WeightedGraph<Symbol, Length, sizet>*> connectedComponents();
 };
 
 template<class Symbol, class Length> class WeightedGraph<Symbol, Length> {
@@ -64,8 +65,9 @@ private:
     vector<Triplet<Symbol, Symbol, Length>> sort(vector<Triplet<Symbol, Symbol, Length>> list);
     pair<bool, int> containsElement(Symbol edge, Symbol element);
     Symbol findMinimum(unordered_set<Symbol> visited, unordered_map<Symbol, pair<Length, Symbol>> map);
-    void depthFirstSearch(WeightedGraph<Symbol, Length> &connectedComponent, Symbol i, unordered_map<Symbol, bool> &visited);
+    void depthFirstSearch(WeightedGraph<Symbol, Length>* &connectedComponent, Symbol i, unordered_map<Symbol, bool> &visited);
 public:
+    virtual ~WeightedGraph();
     WeightedGraph();
     WeightedGraph(LengthInterface<Length> *lengthInterface);
     WeightedGraph(unordered_set<Symbol> vertexList, LengthInterface<Length> *lengthInterface);
@@ -91,8 +93,26 @@ public:
     Length prims();
     Length kruskal();
     unordered_map<Symbol, pair<Length, Symbol>> dijkstra(Symbol edge);
-    vector<WeightedGraph<Symbol, Length>> connectedComponents();
+    vector<WeightedGraph<Symbol, Length>*> connectedComponents();
 };
+
+template<class Symbol, class Length, class sizet> WeightedGraph<Symbol, Length, sizet>::~WeightedGraph() {
+    vector<Symbol> keys = this->getKeySet();
+    for (int i = 0; i < keys.size(); ++i) {
+        for (int j = 0; j < this->get(keys.at(i)).size(); ++j) {
+            delete this->get(keys.at(i)).at(j).second;
+        }
+    }
+}
+
+template<class Symbol, class Length> WeightedGraph<Symbol, Length>::~WeightedGraph() {
+    vector<Symbol> keys = this->getKeySet();
+    for (int i = 0; i < keys.size(); ++i) {
+        for (int j = 0; j < this->get(keys.at(i)).size(); ++j) {
+            delete this->get(keys.at(i)).at(j).second;
+        }
+    }
+}
 
 template<class Symbol, class Length, class sizet> WeightedGraph<Symbol, Length, sizet>::WeightedGraph() = default;
 
@@ -714,8 +734,8 @@ template<class Symbol, class Length> unordered_map<Symbol, pair<Length, Symbol>>
     return map;
 }
 
-template<class Symbol, class Length, class sizet> vector<WeightedGraph<Symbol, Length, sizet>> WeightedGraph<Symbol, Length, sizet>::connectedComponents() {
-    vector<WeightedGraph<Symbol, Length, sizet>> graphs = vector<WeightedGraph<Symbol, Length, sizet>>();
+template<class Symbol, class Length, class sizet> vector<WeightedGraph<Symbol, Length, sizet>*> WeightedGraph<Symbol, Length, sizet>::connectedComponents() {
+    vector<WeightedGraph<Symbol, Length, sizet>*> graphs = vector<WeightedGraph<Symbol, Length, sizet>*>();
     int i;
     unordered_map<Symbol, bool, sizet> visited = unordered_map<Symbol, bool, sizet>();
     for (Symbol vertex: vertexList) {
@@ -724,9 +744,9 @@ template<class Symbol, class Length, class sizet> vector<WeightedGraph<Symbol, L
     for (Symbol vertex: vertexList) {
         if (!visited[vertex]) {
             visited[vertex] = true;
-            WeightedGraph<Symbol, Length, sizet> connectedComponent = WeightedGraph<Symbol, Length, sizet>(lengthInterface);
+            WeightedGraph<Symbol, Length, sizet>* connectedComponent = new WeightedGraph<Symbol, Length, sizet>(lengthInterface);
             depthFirstSearch(connectedComponent, vertex, visited);
-            if (!connectedComponent.isEmpty()) {
+            if (!connectedComponent->isEmpty()) {
                 graphs.push_back(connectedComponent);
             }
         }
@@ -734,8 +754,8 @@ template<class Symbol, class Length, class sizet> vector<WeightedGraph<Symbol, L
     return graphs;
 }
 
-template<class Symbol, class Length> vector<WeightedGraph<Symbol, Length>> WeightedGraph<Symbol, Length>::connectedComponents() {
-    vector<WeightedGraph<Symbol, Length>> graphs = vector<WeightedGraph<Symbol, Length>>();
+template<class Symbol, class Length> vector<WeightedGraph<Symbol, Length>*> WeightedGraph<Symbol, Length>::connectedComponents() {
+    vector<WeightedGraph<Symbol, Length>*> graphs = vector<WeightedGraph<Symbol, Length>*>();
     int i;
     unordered_map<Symbol, bool> visited = unordered_map<Symbol, bool>();
     for (Symbol vertex: vertexList) {
@@ -744,9 +764,9 @@ template<class Symbol, class Length> vector<WeightedGraph<Symbol, Length>> Weigh
     for (Symbol vertex: vertexList) {
         if (!visited[vertex]) {
             visited[vertex] = true;
-            WeightedGraph<Symbol, Length> connectedComponent = WeightedGraph<Symbol, Length>(lengthInterface);
+            WeightedGraph<Symbol, Length>* connectedComponent = new WeightedGraph<Symbol, Length>(lengthInterface);
             depthFirstSearch(connectedComponent, vertex, visited);
-            if (!connectedComponent.isEmpty()) {
+            if (!connectedComponent->isEmpty()) {
                 graphs.push_back(connectedComponent);
             }
         }
@@ -754,10 +774,15 @@ template<class Symbol, class Length> vector<WeightedGraph<Symbol, Length>> Weigh
     return graphs;
 }
 
-template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::depthFirstSearch(WeightedGraph<Symbol, Length, sizet> &connectedComponent, Symbol i, unordered_map<Symbol, bool, sizet> &visited) {
+template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::depthFirstSearch(WeightedGraph<Symbol, Length, sizet>* &connectedComponent, Symbol i, unordered_map<Symbol, bool, sizet> &visited) {
     if (containsKey(i)) {
-        connectedComponent.put(i, get(i));
-        for (pair<Symbol, Edge<Length>*> toNode : get(i)) {
+        vector<pair<Symbol, Edge<Length>*>> v = vector<pair<Symbol, Edge<Length>*>>();
+        for (int j = 0; j < get(i).size(); j++) {
+            pair<Symbol, Edge<Length>*> tmp = pair<Symbol, Edge<Length>*>(get(i).at(j).first, get(i).at(j).second->clonePointer());
+            v.push_back(tmp);
+        }
+        connectedComponent->put(i, v);
+        for (pair<Symbol, Edge<Length>*> toNode : v) {
             if (!visited[toNode.first]) {
                 visited[toNode.first] = true;
                 depthFirstSearch(connectedComponent, toNode.first, visited);
@@ -766,10 +791,15 @@ template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Len
     }
 }
 
-template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::depthFirstSearch(WeightedGraph<Symbol, Length> &connectedComponent, Symbol i, unordered_map<Symbol, bool> &visited) {
+template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::depthFirstSearch(WeightedGraph<Symbol, Length>* &connectedComponent, Symbol i, unordered_map<Symbol, bool> &visited) {
     if (containsKey(i)) {
-        connectedComponent.put(i, get(i));
-        for (pair<Symbol, Edge<Length>*> toNode : get(i)) {
+        vector<pair<Symbol, Edge<Length>*>> v = vector<pair<Symbol, Edge<Length>*>>();
+        for (int j = 0; j < get(i).size(); j++) {
+            pair<Symbol, Edge<Length>*> tmp = pair<Symbol, Edge<Length>*>(get(i).at(j).first, get(i).at(j).second->clonePointer());
+            v.push_back(tmp);
+        }
+        connectedComponent->put(i, v);
+        for (pair<Symbol, Edge<Length>*> toNode : v) {
             if (!visited[toNode.first]) {
                 visited[toNode.first] = true;
                 depthFirstSearch(connectedComponent, toNode.first, visited);
