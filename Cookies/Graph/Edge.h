@@ -37,4 +37,12 @@ template<class E> Edge<E>* Edge<E>::clonePointer() {
     return new Edge<E>(length);
 }
 
+template <class E> bool operator ==(Edge<E> edge1, Edge<E> edge2) {
+    return edge1.length == edge2.length;
+}
+
+template <class E> bool operator !=(Edge<E> edge1, Edge<E> edge2) {
+    return !(edge1 == edge2);
+}
+
 #endif //COOKIES_CPP_EDGE_H

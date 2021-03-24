@@ -46,6 +46,14 @@ public:
     ResidualEdge<E>* clonePointer() {
         return new ResidualEdge<E>(this->length, this->residual, lengthInterface);
     }
+
+    bool operator ==(ResidualEdge<E> edge) {
+        return this->length == edge.length && this->residual == edge.residual && this->flow == edge.flow;
+    }
+
+    bool operator !=(ResidualEdge<E> edge) {
+        return !(this == edge);
+    }
 };
 
 #endif //COOKIES_CPP_RESIDUALEDGE_H

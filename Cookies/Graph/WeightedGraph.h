@@ -12,6 +12,7 @@
 #include "../Set/DisjointSet.h"
 #include "../Graph/LengthInterface.h"
 #include "../Graph/Edge.h"
+#include "../Graph/ResidualEdge.h"
 #include <iostream>
 
 using namespace std;
@@ -27,6 +28,13 @@ private:
     pair<bool, int> containsElement(Symbol edge, Symbol element);
     Symbol findMinimum(unordered_set<Symbol, sizet> visited, unordered_map<Symbol, pair<Length, Symbol>, sizet> map);
     void depthFirstSearch(WeightedGraph<Symbol, Length, sizet>* &connectedComponent, Symbol i, unordered_map<Symbol, bool, sizet> &visited);
+    vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> addEdges();
+    bool containsTo(Symbol from, Symbol to);
+    void removeEdges(vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> &edges);
+    void removeEdge(pair<Symbol, pair<Symbol, Edge<Length>*>> edge);
+    void setResiduals(vector<Symbol> &nodes, Length min);
+    Length depthFirstSearch(vector<Symbol> &nodes, Symbol current, Length min, Symbol sink);
+    void remove(vector<pair<Symbol, Edge<Length>*>> &vec, pair<Symbol, Edge<Length>*> pair);
 public:
     virtual ~WeightedGraph();
     WeightedGraph();
@@ -53,6 +61,7 @@ public:
     Length prims();
     unordered_map<Symbol, pair<Length, Symbol>, sizet> dijkstra(Symbol edge);
     vector<WeightedGraph<Symbol, Length, sizet>*> connectedComponents();
+    Length fordFulkerson(Symbol source, Symbol sink);
 };
 
 template<class Symbol, class Length> class WeightedGraph<Symbol, Length> {
@@ -66,6 +75,13 @@ private:
     pair<bool, int> containsElement(Symbol edge, Symbol element);
     Symbol findMinimum(unordered_set<Symbol> visited, unordered_map<Symbol, pair<Length, Symbol>> map);
     void depthFirstSearch(WeightedGraph<Symbol, Length>* &connectedComponent, Symbol i, unordered_map<Symbol, bool> &visited);
+    vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> addEdges();
+    bool containsTo(Symbol from, Symbol to);
+    void removeEdges(vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> &edges);
+    void removeEdge(pair<Symbol, pair<Symbol, Edge<Length>*>> edge);
+    void setResiduals(vector<Symbol> &nodes, Length min);
+    Length depthFirstSearch(vector<Symbol> &nodes, Symbol current, Length min, Symbol sink);
+    void remove(vector<pair<Symbol, Edge<Length>*>> &vec, pair<Symbol, Edge<Length>*> pair);
 public:
     virtual ~WeightedGraph();
     WeightedGraph();
@@ -94,6 +110,7 @@ public:
     Length kruskal();
     unordered_map<Symbol, pair<Length, Symbol>> dijkstra(Symbol edge);
     vector<WeightedGraph<Symbol, Length>*> connectedComponents();
+    Length fordFulkerson(Symbol source, Symbol sink);
 };
 
 template<class Symbol, class Length, class sizet> WeightedGraph<Symbol, Length, sizet>::~WeightedGraph() {
@@ -806,6 +823,216 @@ template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::depthFi
             }
         }
     }
+}
+
+template<class Symbol, class Length, class sizet> Length WeightedGraph<Symbol, Length, sizet>::fordFulkerson(Symbol source, Symbol sink) {
+    Length total = lengthInterface->min();
+    vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> edges = addEdges();
+    while (true) {
+        vector<Symbol> nodes = vector<Symbol>();
+        nodes.push_back(source);
+        Length min = depthFirstSearch(nodes, source, lengthInterface->max(), sink);
+        if (find(nodes.begin(), nodes.end(), sink) == nodes.end()) {
+            break;
+        }
+        setResiduals(nodes, min);
+        total = lengthInterface->add(total, min);
+    }
+    removeEdges(edges);
+    return total;
+}
+
+template<class Symbol, class Length> Length WeightedGraph<Symbol, Length>::fordFulkerson(Symbol source, Symbol sink) {
+    Length total = lengthInterface->min();
+    vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> edges = addEdges();
+    while (true) {
+        vector<Symbol> nodes = vector<Symbol>();
+        nodes.push_back(source);
+        Length min = depthFirstSearch(nodes, source, lengthInterface->max(), sink);
+        if (find(nodes.begin(), nodes.end(), sink) == nodes.end()) {
+            break;
+        }
+        setResiduals(nodes, min);
+        total = lengthInterface->add(total, min);
+    }
+    removeEdges(edges);
+    return total;
+}
+
+template<class Symbol, class Length, class sizet> vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> WeightedGraph<Symbol, Length, sizet>::addEdges() {
+    vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> list = vector<pair<Symbol, pair<Symbol, Edge<Length>*>>>();
+    for (Symbol key : this->getKeySet()) {
+        for (int i = 0; i < edgeList.at(key).size(); i++) {
+            if (!containsTo(edgeList.at(key).at(i).first, key)) {
+                ResidualEdge<Length>* edge = new ResidualEdge<Length>(edgeList.get(key).get(i).getValue()->getLength(), lengthInterface->min(), lengthInterface);
+                list.push_back(pair<Symbol, pair<Symbol, Edge<Length>*>>(edgeList.at(key).at(i).first, pair<Symbol, Edge<Length>*>(key, edge)));
+            }
+        }
+    }
+    for (pair<Symbol, pair<Symbol, Edge<Length>*>> symbolPairPair : list) {
+        addDirectedEdge(symbolPairPair.first, symbolPairPair.second.first, symbolPairPair.second.second);
+    }
+    return list;
+}
+
+template<class Symbol, class Length> vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> WeightedGraph<Symbol, Length>::addEdges() {
+    vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> list = vector<pair<Symbol, pair<Symbol, Edge<Length>*>>>();
+    for (Symbol key : this->getKeySet()) {
+        for (int i = 0; i < edgeList.at(key).size(); i++) {
+            if (!containsTo(edgeList.at(key).at(i).first, key)) {
+                ResidualEdge<Length>* edge = new ResidualEdge<Length>(edgeList.at(key).at(i).second->getLength(), lengthInterface->min(), lengthInterface);
+                list.push_back(pair<Symbol, pair<Symbol, Edge<Length>*>>(edgeList.at(key).at(i).first, pair<Symbol, Edge<Length>*>(key, edge)));
+            }
+        }
+    }
+    for (pair<Symbol, pair<Symbol, Edge<Length>*>> symbolPairPair : list) {
+        addDirectedEdge(symbolPairPair.first, symbolPairPair.second.first, symbolPairPair.second.second);
+    }
+    return list;
+}
+
+template<class Symbol, class Length> bool WeightedGraph<Symbol, Length>::containsTo(Symbol from, Symbol to) {
+    if (edgeList.find(from) != edgeList.end()) {
+        for (int i = 0; i < edgeList.at(from).size(); i++) {
+            if (edgeList.at(from).at(i).first == to) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template<class Symbol, class Length, class sizet> bool WeightedGraph<Symbol, Length, sizet>::containsTo(Symbol from, Symbol to) {
+    if (edgeList.find(from) != edgeList.end()) {
+        for (int i = 0; i < edgeList.at(from).size(); i++) {
+            if (edgeList.at(from).at(i).first == to) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::removeEdges(vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> &edges) {
+    for (pair<Symbol, pair<Symbol, Edge<Length>*>> edge : edges) {
+        removeEdge(edge);
+        if (edgeList.at(edge.first).size() == 0) {
+            edgeList.erase(edge.first);
+        }
+    }
+}
+
+template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::removeEdges(vector<pair<Symbol, pair<Symbol, Edge<Length>*>>> &edges) {
+    for (pair<Symbol, pair<Symbol, Edge<Length>*>> edge : edges) {
+        removeEdge(edge);
+        if (edgeList.at(edge.first).size() == 0) {
+            edgeList.erase(edge.first);
+        }
+    }
+}
+
+template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::remove(vector<pair<Symbol, Edge<Length>*>> &vec, pair<Symbol, Edge<Length>*> pair) {
+    for (int i = 0; i < vec.size(); i++) {
+        if (vec.at(i).first == pair.first && vec.at(i).second == pair.second) {
+            vec.erase(vec.begin() + i);
+        }
+    }
+}
+
+template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::remove(vector<pair<Symbol, Edge<Length>*>> &vec, pair<Symbol, Edge<Length>*> pair) {
+    for (int i = 0; i < vec.size(); i++) {
+        if (vec.at(i).first == pair.first && vec.at(i).second == pair.second) {
+            vec.erase(vec.begin() + i);
+        }
+    }
+}
+
+template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::removeEdge(pair<Symbol, pair<Symbol, Edge<Length> *>> edge) {
+    delete edge.second.second;
+    remove(edgeList.at(edge.first), edge.second);
+}
+
+template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::removeEdge(pair<Symbol, pair<Symbol, Edge<Length> *>> edge) {
+    delete edge.second.second;
+    remove(edgeList.at(edge.first), edge.second);
+}
+
+template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Length, sizet>::setResiduals(vector<Symbol> &nodes, Length min) {
+    for (int i = 0; i < nodes.size() - 1; i++) {
+        if (containsKey(nodes.at(i))) {
+            for (int j = 0; j < get(nodes.at(i)).size(); j++) {
+                if (get(nodes.at(i), j).first == nodes.at(i + 1)) {
+                    static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->setFlow(lengthInterface->add(static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->getFlow(), min));
+                    if (containsKey(nodes.at(i + 1))) {
+                        for (int k = 0; k < get(nodes.at(i + 1)).size(); k++) {
+                            if (get(nodes.at(i + 1), k).first == nodes.at(i)) {
+                                static_cast<ResidualEdge<Length>*>(get(nodes.at(i + 1), k).second)->setFlow(lengthInterface->remove(get(nodes.at(i + 1), k).second->getLength(), static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->getFlow()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::setResiduals(vector<Symbol> &nodes, Length min) {
+    for (int i = 0; i < nodes.size() - 1; i++) {
+        if (containsKey(nodes.at(i))) {
+            for (int j = 0; j < get(nodes.at(i)).size(); j++) {
+                if (get(nodes.at(i), j).first == nodes.at(i + 1)) {
+                    static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->setFlow(lengthInterface->add(static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->getFlow(), min));
+                    if (containsKey(nodes.at(i + 1))) {
+                        for (int k = 0; k < get(nodes.at(i + 1)).size(); k++) {
+                            if (get(nodes.at(i + 1), k).first == nodes.at(i)) {
+                                static_cast<ResidualEdge<Length>*>(get(nodes.at(i + 1), k).second)->setFlow(lengthInterface->remove(get(nodes.at(i + 1), k).second->getLength(), static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->getFlow()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<class Symbol, class Length, class sizet> Length WeightedGraph<Symbol, Length, sizet>::depthFirstSearch(vector<Symbol> &nodes, Symbol current, Length min, Symbol sink) {
+    for (int i = 0; i < get(current).size(); i++) {
+        if (find(nodes.begin(), nodes.end(), sink) != nodes.end()) {
+            return min;
+        }
+        Symbol node = get(current, i).first;
+        if (find(nodes.begin(), nodes.end(), node) == nodes.end() && lengthInterface->compare(static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual(), lengthInterface->min()) > 0) {
+            nodes.push_back(node);
+            if (find(nodes.begin(), nodes.end(), sink) != nodes.end()) {
+                return lengthInterface->min(min, static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual());
+            }
+            min = lengthInterface->min(min, depthFirstSearch(nodes, node, lengthInterface->min(min, static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual()), sink));
+            if (find(nodes.begin(), nodes.end(), sink) == nodes.end()) {
+                nodes.pop_back();
+            }
+        }
+    }
+    return min;
+}
+
+template<class Symbol, class Length> Length WeightedGraph<Symbol, Length>::depthFirstSearch(vector<Symbol> &nodes, Symbol current, Length min, Symbol sink) {
+    for (int i = 0; i < get(current).size(); i++) {
+        if (find(nodes.begin(), nodes.end(), sink) != nodes.end()) {
+            return min;
+        }
+        Symbol node = get(current, i).first;
+        if (find(nodes.begin(), nodes.end(), node) == nodes.end() && lengthInterface->compare(static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual(), lengthInterface->min()) > 0) {
+            nodes.push_back(node);
+            if (find(nodes.begin(), nodes.end(), sink) != nodes.end()) {
+                return lengthInterface->min(min, static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual());
+            }
+            min = lengthInterface->min(min, depthFirstSearch(nodes, node, lengthInterface->min(min, static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual()), sink));
+            if (find(nodes.begin(), nodes.end(), sink) == nodes.end()) {
+                nodes.pop_back();
+            }
+        }
+    }
+    return min;
 }
 
 #endif //COOKIES_CPP_WEIGHTEDGRAPH_H

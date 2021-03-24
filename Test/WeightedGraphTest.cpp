@@ -22,8 +22,16 @@ struct pair_hash
 TEST_CASE("WeightedGraph-Test") {
     LengthInterface<int> *lengthInterface = new IntegerLength();
     WeightedGraph<string, int> test = WeightedGraph<string, int>(lengthInterface);
-    test.addUndirectedEdge("a", "b", new ResidualEdge<int>(3, lengthInterface), new ResidualEdge<int>(3, lengthInterface));
-    test.addUndirectedEdge("b", "c", new ResidualEdge<int>(5, lengthInterface), new ResidualEdge<int>(5, lengthInterface));
+    test.addDirectedEdge("s", "a", new ResidualEdge<int>(10, lengthInterface));
+    test.addDirectedEdge("s", "c", new ResidualEdge<int>(10, lengthInterface));
+    test.addDirectedEdge("a", "d", new ResidualEdge<int>(8, lengthInterface));
+    test.addDirectedEdge("d", "t", new ResidualEdge<int>(10, lengthInterface));
+    test.addDirectedEdge("a", "b", new ResidualEdge<int>(4, lengthInterface));
+    test.addDirectedEdge("a", "c", new ResidualEdge<int>(2, lengthInterface));
+    test.addDirectedEdge("c", "d", new ResidualEdge<int>(9, lengthInterface));
+    test.addDirectedEdge("b", "t", new ResidualEdge<int>(10, lengthInterface));
+    test.addDirectedEdge("d", "b", new ResidualEdge<int>(6, lengthInterface));
+    cout << "ford fulkerson: " + to_string(test.fordFulkerson("s", "t")) << endl;
     cout << "first -> ";
     cout << static_cast<ResidualEdge<int>*>(test.get("b", 0).second)->getFlow() << endl;
     static_cast<ResidualEdge<int>*>(test.get("b", 0).second)->setFlow(1);
