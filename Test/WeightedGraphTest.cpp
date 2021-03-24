@@ -5,6 +5,7 @@
 #include "catch.hpp"
 #include "../Cookies/Graph/WeightedGraph.h"
 #include "../Cookies/Graph/IntegerLength.h"
+#include "../Cookies/Graph/ResidualEdge.h"
 #include <unordered_map>
 
 using namespace std;
@@ -20,6 +21,10 @@ struct pair_hash
 
 TEST_CASE("WeightedGraph-Test") {
     LengthInterface<int> *lengthInterface = new IntegerLength();
+    WeightedGraph<string, int> test = WeightedGraph<string, int>(lengthInterface);
+    test.addUndirectedEdge("a", "b", new ResidualEdge<int>(3, lengthInterface));
+    test.addUndirectedEdge("b", "c", new ResidualEdge<int>(5, lengthInterface));
+    cout << static_cast<ResidualEdge<int>*>(test.get("b", 0).second)->getResidual() << endl;
     WeightedGraph<string, int> graph = WeightedGraph<string, int>(lengthInterface);
     graph.addUndirectedEdge("a", "b", 4);
     graph.addUndirectedEdge("a", "h", 8);
@@ -35,7 +40,7 @@ TEST_CASE("WeightedGraph-Test") {
     graph.addUndirectedEdge("h", "g", 1);
     for (string key : graph.getKeySet()) {
         cout << graph.get(key, 0).first << endl;
-        cout << graph.get(key, 0).second.getCapacity() << endl;
+        cout << graph.get(key, 0).second->getLength() << endl;
     }
     unordered_map<string, pair<int, string>> map2 = graph.bellmanFord("a");
     unordered_map<string, pair<int, string>> map1 = graph.dijkstra("a");
