@@ -962,11 +962,11 @@ template<class Symbol, class Length, class sizet> void WeightedGraph<Symbol, Len
         if (containsKey(nodes.at(i))) {
             for (int j = 0; j < get(nodes.at(i)).size(); j++) {
                 if (get(nodes.at(i), j).first == nodes.at(i + 1)) {
-                    static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->setFlow(lengthInterface->add(static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->getFlow(), min));
+                    ((ResidualEdge<Length>*) get(nodes.at(i), j).second)->setFlow(lengthInterface->add(((ResidualEdge<Length>*) get(nodes.at(i), j).second)->getFlow(), min));
                     if (containsKey(nodes.at(i + 1))) {
                         for (int k = 0; k < get(nodes.at(i + 1)).size(); k++) {
                             if (get(nodes.at(i + 1), k).first == nodes.at(i)) {
-                                static_cast<ResidualEdge<Length>*>(get(nodes.at(i + 1), k).second)->setFlow(lengthInterface->remove(get(nodes.at(i + 1), k).second->getLength(), static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->getFlow()));
+                                ((ResidualEdge<Length>*) get(nodes.at(i + 1), k).second)->setFlow(lengthInterface->remove(get(nodes.at(i + 1), k).second->getLength(), ((ResidualEdge<Length>) *get(nodes.at(i), j).second)->getFlow()));
                             }
                         }
                     }
@@ -981,11 +981,11 @@ template<class Symbol, class Length> void WeightedGraph<Symbol, Length>::setResi
         if (containsKey(nodes.at(i))) {
             for (int j = 0; j < get(nodes.at(i)).size(); j++) {
                 if (get(nodes.at(i), j).first == nodes.at(i + 1)) {
-                    static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->setFlow(lengthInterface->add(static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->getFlow(), min));
+                    ((ResidualEdge<Length>*) get(nodes.at(i), j).second)->setFlow(lengthInterface->add(((ResidualEdge<Length>*) get(nodes.at(i), j).second)->getFlow(), min));
                     if (containsKey(nodes.at(i + 1))) {
                         for (int k = 0; k < get(nodes.at(i + 1)).size(); k++) {
                             if (get(nodes.at(i + 1), k).first == nodes.at(i)) {
-                                static_cast<ResidualEdge<Length>*>(get(nodes.at(i + 1), k).second)->setFlow(lengthInterface->remove(get(nodes.at(i + 1), k).second->getLength(), static_cast<ResidualEdge<Length>*>(get(nodes.at(i), j).second)->getFlow()));
+                                ((ResidualEdge<Length>*) get(nodes.at(i + 1), k).second)->setFlow(lengthInterface->remove(get(nodes.at(i + 1), k).second->getLength(), ((ResidualEdge<Length>*) get(nodes.at(i), j).second)->getFlow()));
                             }
                         }
                     }
@@ -1001,12 +1001,12 @@ template<class Symbol, class Length, class sizet> Length WeightedGraph<Symbol, L
             return min;
         }
         Symbol node = get(current, i).first;
-        if (find(nodes.begin(), nodes.end(), node) == nodes.end() && lengthInterface->compare(static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual(), lengthInterface->min()) > 0) {
+        if (find(nodes.begin(), nodes.end(), node) == nodes.end() && lengthInterface->compare(((ResidualEdge<Length>) *get(current, i).second)->getResidual(), lengthInterface->min()) > 0) {
             nodes.push_back(node);
             if (find(nodes.begin(), nodes.end(), sink) != nodes.end()) {
-                return lengthInterface->min(min, static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual());
+                return lengthInterface->min(min, ((ResidualEdge<Length>*) get(current, i).second)->getResidual());
             }
-            min = lengthInterface->min(min, depthFirstSearch(nodes, node, lengthInterface->min(min, static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual()), sink));
+            min = lengthInterface->min(min, depthFirstSearch(nodes, node, lengthInterface->min(min, ((ResidualEdge<Length>*) get(current, i).second)->getResidual()), sink));
             if (find(nodes.begin(), nodes.end(), sink) == nodes.end()) {
                 nodes.pop_back();
             }
@@ -1021,12 +1021,12 @@ template<class Symbol, class Length> Length WeightedGraph<Symbol, Length>::depth
             return min;
         }
         Symbol node = get(current, i).first;
-        if (find(nodes.begin(), nodes.end(), node) == nodes.end() && lengthInterface->compare(static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual(), lengthInterface->min()) > 0) {
+        if (find(nodes.begin(), nodes.end(), node) == nodes.end() && lengthInterface->compare(((ResidualEdge<Length>*) get(current, i).second)->getResidual(), lengthInterface->min()) > 0) {
             nodes.push_back(node);
             if (find(nodes.begin(), nodes.end(), sink) != nodes.end()) {
-                return lengthInterface->min(min, static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual());
+                return lengthInterface->min(min, ((ResidualEdge<Length>*) get(current, i).second)->getResidual());
             }
-            min = lengthInterface->min(min, depthFirstSearch(nodes, node, lengthInterface->min(min, static_cast<ResidualEdge<Length>*>(get(current, i).second)->getResidual()), sink));
+            min = lengthInterface->min(min, depthFirstSearch(nodes, node, lengthInterface->min(min, ((ResidualEdge<Length>*) get(current, i).second)->getResidual()), sink));
             if (find(nodes.begin(), nodes.end(), sink) == nodes.end()) {
                 nodes.pop_back();
             }
